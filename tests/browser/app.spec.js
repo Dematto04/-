@@ -52,6 +52,12 @@ test('thẻ và điều khiển vừa màn hình mobile nhỏ', async ({ page })
     await page.setViewportSize(viewport);
     await page.locator('[data-start-deck="0"]').first().click();
     await expect(page.locator('#study-screen')).toBeVisible();
+    const scrollLock = await page.evaluate(() => ({
+      html: getComputedStyle(document.documentElement).overflow,
+      body: getComputedStyle(document.body).overflow,
+      className: document.documentElement.classList.contains('study-scroll-locked')
+    }));
+    expect(scrollLock).toEqual({ html: 'hidden', body: 'hidden', className: true });
     const bounds = await page.locator('#known-button').boundingBox();
     expect(bounds).not.toBeNull();
     expect(bounds.y + bounds.height).toBeLessThanOrEqual(viewport.height);
@@ -59,6 +65,7 @@ test('thẻ và điều khiển vừa màn hình mobile nhỏ', async ({ page })
     expect(width).toBeLessThanOrEqual(viewport.width);
     await page.locator('#leave-study-button').click();
     await expect(page.locator('#home-screen')).toBeVisible();
+    await expect(page.locator('html')).not.toHaveClass(/study-scroll-locked/);
   }
 });
 

@@ -32,6 +32,11 @@
   * { @apply box-border; }
   html { @apply h-full scroll-smooth bg-paper; -webkit-text-size-adjust: 100%; }
   body { @apply m-0 min-w-[320px] overflow-x-hidden; }
+  html.study-scroll-locked,
+  html.study-scroll-locked body {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
   button, a { -webkit-tap-highlight-color: transparent; }
   button { @apply font-sans; }
   button:focus-visible, a:focus-visible { @apply outline-none ring-2 ring-vermilion ring-offset-2 ring-offset-paper; }

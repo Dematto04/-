@@ -145,9 +145,12 @@ function deckLabel(deckId) {
 }
 
 function setScreen(name) {
+  const isStudying = name === 'study';
   elements.home.hidden = name !== 'home';
-  elements.study.hidden = name !== 'study';
+  elements.study.hidden = !isStudying;
   elements.summary.hidden = name !== 'summary';
+  document.documentElement.classList.toggle('study-scroll-locked', isStudying);
+  document.body.classList.toggle('study-scroll-locked', isStudying);
   window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
