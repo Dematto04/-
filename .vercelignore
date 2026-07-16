@@ -1,0 +1,14 @@
+node_modules/
+test-results/
+playwright-report/
+
+*.csv
+*.txt
+*.pdf
+
+tests/
+scripts/
+tailwind.config.cjs
+playwright.config.js
+package-lock.json
+README.md
