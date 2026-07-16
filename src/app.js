@@ -170,7 +170,7 @@ function renderHome() {
     cards.push(`
       <article class="deck-item${active ? ' is-active' : ''}${complete ? ' is-complete' : ''}">
         <button class="deck-number" type="button" data-start-deck="${deckId}" aria-label="${deckLabel(deckId)}, ${knownCount} trên ${items.length} từ đã nhớ">
-          ${complete ? '✓' : String(deckId + 1).padStart(2, '0')}
+          ${complete ? '<span class="paw-icon" aria-hidden="true"></span>' : String(deckId + 1).padStart(2, '0')}
         </button>
         <button class="deck-main" type="button" data-start-deck="${deckId}">
           <strong>${deckLabel(deckId)}</strong>
@@ -337,6 +337,7 @@ function finishSession() {
   const remainingCount = currentDeckCards.length - knownCount;
   elements.summaryKnown.textContent = String(knownCount);
   elements.summaryRemaining.textContent = String(remainingCount);
+  elements.summary.classList.toggle('has-remaining', remainingCount > 0);
 
   if (remainingCount > 0) {
     elements.summaryTitle.textContent = `${deckLabel(currentDeckId)} · Hết lượt`;
@@ -365,7 +366,7 @@ function applyTheme(theme, persist = true) {
   const isDark = theme === 'dark';
   document.documentElement.classList.toggle('dark', isDark);
   document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
-  $$('meta[name="theme-color"]').forEach((meta) => { meta.content = isDark ? '#181918' : '#f3eee3'; });
+  $$('meta[name="theme-color"]').forEach((meta) => { meta.content = isDark ? '#0f111f' : '#f7f3ed'; });
   $$('.theme-toggle').forEach((button) => {
     button.setAttribute('aria-label', isDark ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối');
   });

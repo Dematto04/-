@@ -18,10 +18,11 @@ test('font stack hỗ trợ tiếng Việt và tách riêng chữ Nhật', async
     body: getComputedStyle(document.body).fontFamily,
     heading: getComputedStyle(document.querySelector('#home-title')).fontFamily
   }));
+  expect(fonts.body).toContain('SF Pro Rounded');
   expect(fonts.body).toContain('Segoe UI');
   expect(fonts.body).toContain('Noto Sans');
-  expect(fonts.heading).toContain('Cambria');
-  expect(fonts.heading).toContain('Georgia');
+  expect(fonts.heading).toContain('Avenir Next Rounded');
+  expect(fonts.heading).toContain('Segoe UI Variable Display');
 
   await page.locator('[data-start-deck="0"]').first().click();
   const japaneseFont = await page.locator('#card-front').evaluate((node) => getComputedStyle(node).fontFamily);

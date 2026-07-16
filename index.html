@@ -12,12 +12,12 @@
     />
     <meta
       name="theme-color"
-      content="#181918"
+      content="#0f111f"
       media="(prefers-color-scheme: dark)"
     />
     <meta
       name="theme-color"
-      content="#f3eee3"
+      content="#f7f3ed"
       media="(prefers-color-scheme: light)"
     />
     <meta
@@ -162,6 +162,8 @@
             aria-label="Tiến độ tổng 0 phần trăm"
           >
             <div>
+              <i class="ring-cat-nose" aria-hidden="true"></i>
+              <i class="ring-cat-whiskers" aria-hidden="true"></i>
               <strong id="overall-percent">0%</strong>
               <span>đã nhớ</span>
             </div>
@@ -191,6 +193,14 @@
               <path d="m9 5 7 7-7 7" />
             </svg>
           </button>
+          <span class="peek-cat" aria-hidden="true">
+            <span class="peek-cat-head">
+              <i class="peek-eye"></i>
+              <i class="peek-eye"></i>
+              <i class="peek-nose"></i>
+            </span>
+            <span class="peek-paw"></span>
+          </span>
         </section>
 
         <section
@@ -328,8 +338,15 @@
                 <strong
                   id="card-front"
                   lang="ja"
-                  >人生</strong
+                >人生</strong
                 >
+                <span class="card-paw" aria-hidden="true"></span>
+                <span class="study-cat" aria-hidden="true">
+                  <i class="study-cat-eye"></i>
+                  <i class="study-cat-eye"></i>
+                  <i class="study-cat-nose"></i>
+                  <i class="study-cat-tail"></i>
+                </span>
                 <span class="flip-hint"
                   ><svg
                     aria-hidden="true"
@@ -342,6 +359,7 @@
               </span>
               <span class="card-face card-back">
                 <span class="face-label">Cách đọc &amp; ý nghĩa</span>
+                <span class="back-cat-mark" aria-hidden="true"></span>
                 <span
                   id="reading-block"
                   class="answer-block reading-block"
@@ -451,7 +469,12 @@
           class="summary-mark"
           aria-hidden="true"
         >
-          <span>了</span>
+          <span class="summary-cat">
+            <i class="summary-eye summary-eye-left"></i>
+            <i class="summary-eye summary-eye-right"></i>
+            <i class="summary-nose"></i>
+            <i class="summary-tail"></i>
+          </span>
         </div>
         <p class="eyebrow centered"><span></span> Hoàn thành <span></span></p>
         <h1 id="summary-title">Bài 01 đã xong</h1>

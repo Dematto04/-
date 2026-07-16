@@ -1,4 +1,4 @@
-const CACHE_NAME = 'n2-goi-v9';
+const CACHE_NAME = 'n2-goi-v11';
 const BASE_URL = new URL('./', self.location.href);
 const APP_SHELL = [
   './',

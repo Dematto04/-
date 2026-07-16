@@ -31,25 +31,60 @@ function makeIcon(size) {
   const stride = size * 4 + 1;
   const pixels = Buffer.alloc(stride * size);
   const center = (size - 1) / 2;
-  const sealRadius = size * 0.31;
+  const pointInTriangle = (px, py, [ax, ay], [bx, by], [cx, cy]) => {
+    const d1 = (px - bx) * (ay - by) - (ax - bx) * (py - by);
+    const d2 = (px - cx) * (by - cy) - (bx - cx) * (py - cy);
+    const d3 = (px - ax) * (cy - ay) - (cx - ax) * (py - ay);
+    const hasNegative = d1 < 0 || d2 < 0 || d3 < 0;
+    const hasPositive = d1 > 0 || d2 > 0 || d3 > 0;
+    return !(hasNegative && hasPositive);
+  };
+
+  const leftEar = [
+    [size * 0.22, size * 0.43],
+    [size * 0.29, size * 0.18],
+    [size * 0.48, size * 0.38]
+  ];
+  const rightEar = leftEar.map(([x, y]) => [size - x, y]);
+  const leftInnerEar = [
+    [size * 0.285, size * 0.36],
+    [size * 0.31, size * 0.245],
+    [size * 0.405, size * 0.36]
+  ];
+  const rightInnerEar = leftInnerEar.map(([x, y]) => [size - x, y]);
 
   for (let y = 0; y < size; y += 1) {
     pixels[y * stride] = 0;
     for (let x = 0; x < size; x += 1) {
       const offset = y * stride + 1 + x * 4;
-      const distance = Math.hypot(x - center, y - center);
-      const inSeal = distance < sealRadius;
-      const inInner = distance < sealRadius * 0.83;
-      const verticalStroke = Math.abs(x - center) < size * 0.035 && Math.abs(y - center) < size * 0.16;
-      const topStroke = Math.abs(y - (center - size * 0.17)) < size * 0.025 && Math.abs(x - center) < size * 0.13;
-      const bottomStroke = Math.abs(y - (center + size * 0.17)) < size * 0.025 && Math.abs(x - center) < size * 0.13;
-      const glyph = inInner && (verticalStroke || topStroke || bottomStroke);
+      const nx = (x - center) / (size * 0.355);
+      const ny = (y - size * 0.545) / (size * 0.305);
+      const inHead = nx * nx + ny * ny < 1;
+      const inLeftEar = pointInTriangle(x, y, ...leftEar);
+      const inRightEar = pointInTriangle(x, y, ...rightEar);
+      const inInnerEar = pointInTriangle(x, y, ...leftInnerEar)
+        || pointInTriangle(x, y, ...rightInnerEar);
+      const eyeY = size * 0.51;
+      const leftEye = Math.hypot((x - size * 0.41) / 0.65, y - eyeY) < size * 0.024;
+      const rightEye = Math.hypot((x - size * 0.59) / 0.65, y - eyeY) < size * 0.024;
+      const nose = Math.hypot(x - center, (y - size * 0.61) * 1.35) < size * 0.028;
+      const muzzleLeft = Math.hypot(x - size * 0.46, y - size * 0.655) < size * 0.068;
+      const muzzleRight = Math.hypot(x - size * 0.54, y - size * 0.655) < size * 0.068;
+      const star = ((x * 17 + y * 29) % 997 === 0) && Math.hypot(x - center, y - center) > size * 0.34;
 
-      const color = glyph
-        ? [246, 241, 230, 255]
-        : inSeal
-          ? [217, 70, 52, 255]
-          : [24, 25, 24, 255];
+      const color = leftEye || rightEye
+        ? [35, 29, 51, 255]
+        : nose
+          ? [237, 139, 177, 255]
+          : muzzleLeft || muzzleRight
+            ? [255, 237, 207, 255]
+            : inInnerEar
+              ? [237, 139, 177, 255]
+              : inHead || inLeftEar || inRightEar
+                ? [201, 176, 255, 255]
+                : star
+                  ? [255, 237, 207, 155]
+                  : [15, 17, 31, 255];
 
       pixels.set(color, offset);
     }
