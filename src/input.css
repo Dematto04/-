@@ -139,8 +139,10 @@
   .card-front > strong { @apply max-w-full break-words font-jp text-[clamp(2.7rem,15vw,6rem)] font-medium leading-[1.15] tracking-[-.04em]; }
   .flip-hint { @apply absolute bottom-7 flex items-center gap-1.5 text-[10px] text-muted; }
   .flip-hint svg { @apply h-4 w-4 fill-none stroke-current stroke-[1.5] [stroke-linecap:round] [stroke-linejoin:round]; }
-  .card-back { @apply justify-center; transform: rotateY(180deg); }
+  .card-back { @apply items-center justify-center text-center; transform: rotateY(180deg); }
   .card-back .face-label { @apply left-7 right-auto; }
+  .card-back .answer-block { @apply w-full; }
+  .card-back .answer-rule { @apply mx-auto; }
   .answer-block { @apply block; }
   .answer-block small { @apply mb-1.5 block text-[8px] font-semibold uppercase tracking-[.2em] text-vermilion; }
   .reading-block { @apply mb-6; }

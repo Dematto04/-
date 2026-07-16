@@ -74,6 +74,11 @@ test('lật thẻ, trả lời và lưu tiến độ', async ({ page }) => {
   await expect(page.locator('#card-front')).toHaveText('人生');
   await page.locator('#flashcard').click();
   await expect(page.locator('#card-reading')).toHaveText('じんせい');
+  const backAlignment = await page.locator('.card-back').evaluate((node) => ({
+    alignItems: getComputedStyle(node).alignItems,
+    textAlign: getComputedStyle(node).textAlign
+  }));
+  expect(backAlignment).toEqual({ alignItems: 'center', textAlign: 'center' });
   await expect(page.locator('#known-button')).toBeEnabled();
   const knownFeedback = await page.evaluate(() => {
     document.querySelector('#known-button').click();
