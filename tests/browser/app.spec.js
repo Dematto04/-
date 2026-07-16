@@ -37,12 +37,12 @@ test('đánh dấu được ngay ở mặt trước mà không cần lật thẻ
 
   await page.locator('#known-button').click();
   await expect(page.locator('#card-front')).toHaveText('人間');
-  await expect(page.locator('#study-count-label')).toHaveText('1 / 20 đã nhớ');
+  await expect(page.locator('#study-count-label')).toHaveText('1 / 20 đã học');
 
   await expect(page.locator('#flashcard')).not.toHaveClass(/is-flipped/);
   await page.locator('#again-button').click();
   await expect(page.locator('#card-front')).toHaveText('人');
-  await expect(page.locator('#study-count-label')).toHaveText('1 / 20 đã nhớ');
+  await expect(page.locator('#study-count-label')).toHaveText('2 / 20 đã học');
 });
 
 test('thẻ và điều khiển vừa màn hình mobile nhỏ', async ({ page }) => {
@@ -78,13 +78,13 @@ test('lật thẻ, trả lời và lưu tiến độ', async ({ page }) => {
   expect(knownFeedback.card).toContain('is-answering-known');
   expect(knownFeedback.stamp).toContain('is-committed');
   await expect(page.locator('#card-front')).toHaveText('人間');
-  await expect(page.locator('#study-count-label')).toHaveText('1 / 20 đã nhớ');
+  await expect(page.locator('#study-count-label')).toHaveText('1 / 20 đã học');
 
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('n2-flashcards:state:v1')));
   expect(saved.decks['0'].known).toEqual([1]);
 });
 
-test('chưa nhớ lặp lại và hoàn tác phục hồi thẻ', async ({ page }) => {
+test('chưa nhớ trong lượt đầu và hoàn tác phục hồi thẻ', async ({ page }) => {
   await page.locator('[data-start-deck="0"]').first().click();
   await page.locator('#flashcard').click();
   const againFeedback = await page.evaluate(() => {
@@ -112,11 +112,11 @@ test('điều hướng desktop bằng các phím mũi tên', async ({ page }) =>
 
   await page.keyboard.press('ArrowRight');
   await expect(page.locator('#card-front')).toHaveText('人間');
-  await expect(page.locator('#study-count-label')).toHaveText('1 / 20 đã nhớ');
+  await expect(page.locator('#study-count-label')).toHaveText('1 / 20 đã học');
 
   await page.keyboard.press('ArrowLeft');
   await expect(page.locator('#card-front')).toHaveText('人');
-  await expect(page.locator('#study-count-label')).toHaveText('1 / 20 đã nhớ');
+  await expect(page.locator('#study-count-label')).toHaveText('2 / 20 đã học');
 
   await page.keyboard.press('ArrowUp');
   await expect(page.locator('#flashcard')).toHaveClass(/is-flipped/);
@@ -150,7 +150,57 @@ test('hoàn thành thẻ cuối mở màn hình tổng kết', async ({ page }) 
   await page.locator('#flashcard').click();
   await page.locator('#known-button').click();
   await expect(page.locator('#summary-screen')).toBeVisible();
-  await expect(page.locator('#summary-title')).toHaveText('Bài 01 đã xong');
+  await expect(page.locator('#summary-title')).toHaveText('Bài 01 đã hoàn thành');
+});
+
+test('progress tăng theo từng thẻ rồi học tiếp từ chưa nhớ hoặc đặt lại', async ({ page }) => {
+  await page.locator('[data-start-deck="52"]').first().click();
+  await expect(page.locator('#study-count-label')).toHaveText('0 / 5 đã học');
+
+  await page.locator('#again-button').click();
+  await expect(page.locator('#card-front')).toHaveText('ある');
+  await expect(page.locator('#study-count-label')).toHaveText('1 / 5 đã học');
+  expect(await page.locator('#study-progress-bar').evaluate((node) => parseFloat(node.style.width))).toBe(20);
+
+  for (let completed = 2; completed <= 4; completed += 1) {
+    await page.locator('#known-button').click();
+    await expect(page.locator('#study-count-label')).toHaveText(`${completed} / 5 đã học`);
+  }
+  await page.locator('#known-button').click();
+
+  await expect(page.locator('#summary-screen')).toBeVisible();
+  await expect(page.locator('#summary-known')).toHaveText('4');
+  await expect(page.locator('#summary-remaining')).toHaveText('1');
+  await expect(page.locator('#summary-message')).toContainText('5 từ của lượt này');
+  await expect(page.locator('#review-button')).toHaveText('Học tiếp 1 từ chưa nhớ');
+  await expect(page.locator('#summary-reset-button')).toBeVisible();
+
+  await page.locator('#review-button').click();
+  await expect(page.locator('#card-front')).toHaveText('本来');
+  await expect(page.locator('#study-count-label')).toHaveText('0 / 1 đã học');
+
+  await page.locator('#again-button').click();
+  await expect(page.locator('#study-count-label')).toHaveText('1 / 1 đã học');
+  await expect(page.locator('#summary-screen')).toBeVisible();
+  await expect(page.locator('#summary-remaining')).toHaveText('1');
+  await expect(page.locator('#summary-message')).toContainText('1 từ của lượt này');
+  await expect(page.locator('#review-button')).toHaveText('Học tiếp 1 từ chưa nhớ');
+
+  await page.locator('#review-button').click();
+  await expect(page.locator('#card-front')).toHaveText('本来');
+  await expect(page.locator('#study-count-label')).toHaveText('0 / 1 đã học');
+  await page.locator('#known-button').click();
+
+  await expect(page.locator('#summary-title')).toHaveText('Bài 53 đã hoàn thành');
+  await expect(page.locator('#summary-known')).toHaveText('5');
+  await expect(page.locator('#summary-remaining')).toHaveText('0');
+
+  await page.locator('#summary-reset-button').click();
+  await expect(page.locator('#confirm-dialog')).toBeVisible();
+  await page.locator('#confirm-action').click();
+  await expect(page.locator('#study-screen')).toBeVisible();
+  await expect(page.locator('#card-front')).toHaveText('本来');
+  await expect(page.locator('#study-count-label')).toHaveText('0 / 5 đã học');
 });
 
 test('manifest và service worker chuẩn bị đủ cache offline', async ({ page, request, context, browserName }) => {

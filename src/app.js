@@ -231,14 +231,10 @@ function renderCard() {
 }
 
 function renderStudyProgress() {
-  const completed = session.requeueMisses
-    ? [...session.targetIds].filter((id) => session.known.has(id)).length
-    : Math.min(session.answered, session.total);
+  const completed = Math.min(session.answered, session.total);
   const percent = session.total > 0 ? (completed / session.total) * 100 : 100;
   elements.studyDeckLabel.textContent = deckLabel(currentDeckId);
-  elements.studyCountLabel.textContent = session.requeueMisses
-    ? `${completed} / ${session.total} đã nhớ`
-    : `${completed} / ${session.total} đã học`;
+  elements.studyCountLabel.textContent = `${completed} / ${session.total} đã học`;
   elements.studyProgressBar.style.width = `${percent}%`;
 }
 
@@ -272,10 +268,7 @@ function startRemediation() {
     return;
   }
 
-  session = createSession(remainingCards, progress.known, {
-    reviewAll: true,
-    requeueMisses: true
-  });
+  session = createSession(remainingCards, progress.known, { reviewAll: true });
   state.lastDeckId = currentDeckId;
   saveState(false);
   setScreen('study');
@@ -295,11 +288,10 @@ function submitAnswer(remembered) {
   feedback.classList.add('is-visible', 'is-committed');
   elements.answerAnnouncer.textContent = remembered
     ? 'Đã nhớ. Chuyển sang thẻ tiếp theo.'
-    : session.requeueMisses
-      ? 'Chưa nhớ. Thẻ sẽ quay lại cuối lượt.'
-      : 'Chưa nhớ. Đã ghi nhận để học tiếp sau lượt này.';
+    : 'Chưa nhớ. Đã ghi nhận để học tiếp ở lượt sau.';
 
   answerCard(session, remembered);
+  renderStudyProgress();
 
   if (!remembered) {
     const progress = normalizedDeckState(currentDeckId);
@@ -345,7 +337,7 @@ function finishSession() {
 
   if (remainingCount > 0) {
     elements.summaryTitle.textContent = `${deckLabel(currentDeckId)} · Hết lượt`;
-    elements.summaryMessage.textContent = `Bạn đã đi qua toàn bộ ${currentDeckCards.length} từ. Hãy học tiếp những từ chưa nhớ khi sẵn sàng.`;
+    elements.summaryMessage.textContent = `Bạn đã đi qua toàn bộ ${session.total} từ của lượt này. Hãy học tiếp những từ chưa nhớ khi sẵn sàng.`;
     elements.reviewButton.textContent = `Học tiếp ${remainingCount} từ chưa nhớ`;
   } else {
     elements.summaryTitle.textContent = `${deckLabel(currentDeckId)} đã hoàn thành`;

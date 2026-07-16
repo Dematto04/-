@@ -28,11 +28,15 @@ test('lượt đầu ghi nhận chưa nhớ nhưng không lặp lại ngay', () 
   assert.equal(session.total, 3);
 });
 
-test('lượt học tiếp đưa từ chưa nhớ xuống cuối cho tới khi nhớ', () => {
-  const session = createSession(cards, [], { reviewAll: true, requeueMisses: true });
+test('lượt học tiếp cũng chỉ đi qua mỗi từ chưa nhớ đúng một lần', () => {
+  const session = createSession(cards.slice(0, 2), [3], { reviewAll: true });
   answerCard(session, false);
-  assert.deepEqual(session.queue.map((card) => card.i), [2, 3, 1]);
-  assert.equal(session.requeueMisses, true);
+  assert.deepEqual(session.queue.map((card) => card.i), [2]);
+  answerCard(session, false);
+  assert.deepEqual(session.queue, []);
+  assert.equal(session.answered, 2);
+  assert.equal(session.total, 2);
+  assert.equal('requeueMisses' in session, false);
 });
 
 test('đã nhớ loại thẻ khỏi hàng đợi và lưu trạng thái', () => {

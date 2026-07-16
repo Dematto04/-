@@ -6,7 +6,7 @@ export function shuffleInPlace(items, random = Math.random) {
   return items;
 }
 
-export function createSession(cards, knownIds = [], { reviewAll = false, requeueMisses = false } = {}) {
+export function createSession(cards, knownIds = [], { reviewAll = false } = {}) {
   const known = new Set(knownIds);
   const queue = reviewAll ? [...cards] : cards.filter((card) => !known.has(card.i));
   return {
@@ -16,9 +16,7 @@ export function createSession(cards, knownIds = [], { reviewAll = false, requeue
     misses: 0,
     answered: 0,
     shuffled: false,
-    requeueMisses,
-    total: queue.length,
-    targetIds: new Set(queue.map((card) => card.i))
+    total: queue.length
   };
 }
 
@@ -34,7 +32,6 @@ export function answerCard(session, remembered) {
     session.known.add(card.i);
   } else {
     session.known.delete(card.i);
-    if (session.requeueMisses) session.queue.push(card);
     session.misses += 1;
   }
 
