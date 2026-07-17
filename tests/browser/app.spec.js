@@ -13,6 +13,44 @@ test('hiển thị đủ 53 bài và không tràn ngang mobile', async ({ page }
   expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.width);
 });
 
+test('mobile exposes one lesson action per deck and keeps the first lesson above the fold', async ({ page }) => {
+  await page.setViewportSize({ width: 393, height: 852 });
+  await expect(page.locator('[data-start-deck]')).toHaveCount(53);
+  await expect(page.locator('.deck-number').first()).toHaveJSProperty('tagName', 'SPAN');
+
+  const layout = await page.evaluate(() => ({
+    firstDeckTop: document.querySelector('.deck-item').getBoundingClientRect().top,
+    visibleDecks: [...document.querySelectorAll('.deck-item')]
+      .filter((item) => item.getBoundingClientRect().top < innerHeight).length
+  }));
+  expect(layout.firstDeckTop).toBeLessThan(500);
+  expect(layout.visibleDecks).toBeGreaterThanOrEqual(4);
+});
+
+test('short mobile result keeps every action visible without scrolling', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.evaluate(() => {
+    localStorage.setItem('n2-flashcards:state:v1', JSON.stringify({
+      version: 1,
+      theme: 'light',
+      lastDeckId: 52,
+      decks: { 52: { known: [1042, 1043, 1044, 1045], misses: 0, updatedAt: Date.now() } }
+    }));
+  });
+  await page.reload();
+  await page.locator('[data-start-deck="52"]').click();
+  await page.locator('#again-button').click();
+  await expect(page.locator('#summary-screen')).toBeVisible();
+
+  const layout = await page.locator('#summary-screen').evaluate((screen) => ({
+    scrollHeight: screen.scrollHeight,
+    lastActionBottom: screen.querySelector('#summary-reset-button').getBoundingClientRect().bottom,
+    viewportHeight: innerHeight
+  }));
+  expect(layout.scrollHeight).toBeLessThanOrEqual(layout.viewportHeight);
+  expect(layout.lastActionBottom).toBeLessThanOrEqual(layout.viewportHeight);
+});
+
 test('font stack hỗ trợ tiếng Việt và tách riêng chữ Nhật', async ({ page }) => {
   const fonts = await page.evaluate(() => ({
     body: getComputedStyle(document.body).fontFamily,
@@ -28,6 +66,44 @@ test('font stack hỗ trợ tiếng Việt và tách riêng chữ Nhật', async
   const japaneseFont = await page.locator('#card-front').evaluate((node) => getComputedStyle(node).fontFamily);
   expect(japaneseFont).toContain('Yu Mincho');
   expect(japaneseFont).toContain('Noto Serif JP');
+});
+
+test('mascot dùng nhiều pose, mở mắt và không lặp hướng dẫn trên thẻ', async ({ page }) => {
+  const readMascotPalette = () => page.evaluate(() => {
+    const styleOf = (selector) => getComputedStyle(document.querySelector(selector));
+    return {
+      fur: styleOf('#mimi-head-open .mimi-head').fill,
+      patch: styleOf('#mimi-head-open .mimi-patch').fill,
+      eye: styleOf('#mimi-head-open .mimi-eye-open').fill,
+      highlight: styleOf('#mimi-head-open .mimi-eye-shine').fill,
+      nose: styleOf('#mimi-head-open .mimi-nose').fill
+    };
+  });
+  const mascotSystem = await page.evaluate(() => ({
+    hero: document.querySelector('.hero-mimi use')?.getAttribute('href'),
+    continuePose: document.querySelector('.peek-cat use')?.getAttribute('href'),
+    study: document.querySelector('.study-cat use')?.getAttribute('href'),
+    summary: document.querySelector('.summary-cat use')?.getAttribute('href'),
+    openEyes: document.querySelectorAll('#mimi-head-open .mimi-eye-open').length,
+    answerHint: Boolean(document.querySelector('#answer-hint')),
+    flipHint: Boolean(document.querySelector('.flip-hint')),
+    answerSublabels: document.querySelectorAll('.answer-button small').length
+  }));
+
+  expect(new Set([
+    mascotSystem.hero,
+    mascotSystem.continuePose,
+    mascotSystem.study,
+    mascotSystem.summary
+  ]).size).toBe(4);
+  expect(mascotSystem.openEyes).toBe(2);
+  expect(mascotSystem.answerHint).toBe(false);
+  expect(mascotSystem.flipHint).toBe(false);
+  expect(mascotSystem.answerSublabels).toBe(0);
+
+  const paletteBeforeThemeChange = await readMascotPalette();
+  await page.locator('.theme-toggle').first().click();
+  expect(await readMascotPalette()).toEqual(paletteBeforeThemeChange);
 });
 
 test('đánh dấu được ngay ở mặt trước mà không cần lật thẻ', async ({ page }) => {
@@ -117,12 +193,6 @@ test('chưa nhớ trong lượt đầu và hoàn tác phục hồi thẻ', async
 test('điều hướng desktop bằng các phím mũi tên', async ({ page }) => {
   await page.locator('[data-start-deck="0"]').first().click();
 
-  const usesFinePointer = await page.evaluate(() => matchMedia('(hover: hover) and (pointer: fine)').matches);
-  if (usesFinePointer) {
-    await expect(page.locator('.keyboard-hint').first()).toBeVisible();
-    await expect(page.locator('.touch-hint').first()).toBeHidden();
-  }
-
   await page.keyboard.press('ArrowRight');
   await expect(page.locator('#card-front')).toHaveText('人間');
   await expect(page.locator('#study-count-label')).toHaveText('1 / 20 đã học');
@@ -184,7 +254,7 @@ test('progress tăng theo từng thẻ rồi học tiếp từ chưa nhớ hoặ
   await expect(page.locator('#summary-screen')).toBeVisible();
   await expect(page.locator('#summary-known')).toHaveText('4');
   await expect(page.locator('#summary-remaining')).toHaveText('1');
-  await expect(page.locator('#summary-message')).toContainText('5 từ của lượt này');
+  await expect(page.locator('#summary-message')).toContainText('Đã học 5 từ trong lượt này');
   await expect(page.locator('#review-button')).toHaveText('Học tiếp 1 từ chưa nhớ');
   await expect(page.locator('#summary-reset-button')).toBeVisible();
 
@@ -196,7 +266,7 @@ test('progress tăng theo từng thẻ rồi học tiếp từ chưa nhớ hoặ
   await expect(page.locator('#study-count-label')).toHaveText('1 / 1 đã học');
   await expect(page.locator('#summary-screen')).toBeVisible();
   await expect(page.locator('#summary-remaining')).toHaveText('1');
-  await expect(page.locator('#summary-message')).toContainText('1 từ của lượt này');
+  await expect(page.locator('#summary-message')).toContainText('Đã học 1 từ trong lượt này');
   await expect(page.locator('#review-button')).toHaveText('Học tiếp 1 từ chưa nhớ');
 
   await page.locator('#review-button').click();

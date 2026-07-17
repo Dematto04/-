@@ -2,7 +2,6 @@
 <html
   lang="vi"
   class="h-full"
-  suppresshydrationwarning
 >
   <head>
     <meta charset="UTF-8" />
@@ -12,18 +11,29 @@
     />
     <meta
       name="theme-color"
-      content="#0f111f"
+      content="#1b171f"
       media="(prefers-color-scheme: dark)"
     />
     <meta
       name="theme-color"
-      content="#f7f3ed"
+      content="#f9f6ee"
       media="(prefers-color-scheme: light)"
     />
     <meta
       name="description"
-      content="Flashcard 1.045 từ vựng JLPT N2, tối ưu cho điện thoại và học offline."
+      content="Học 1.045 từ vựng JLPT N2 qua 53 bộ flashcard. Theo dõi tiến độ, ôn lại từ chưa nhớ và học offline miễn phí."
     />
+    <meta name="author" content="N2 Goi" />
+    <meta name="robots" content="index, follow" />
+    <meta name="application-name" content="N2 Goi" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="vi_VN" />
+    <meta property="og:site_name" content="N2 Goi" />
+    <meta property="og:title" content="1.045 từ vựng JLPT N2 | N2 Goi" />
+    <meta property="og:description" content="53 bộ flashcard JLPT N2, có theo dõi tiến độ, ôn từ chưa nhớ và hỗ trợ học offline." />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="1.045 từ vựng JLPT N2 | N2 Goi" />
+    <meta name="twitter:description" content="Học từ vựng N2 theo 53 bộ flashcard, lưu tiến độ và dùng được khi offline." />
     <meta
       name="apple-mobile-web-app-capable"
       content="yes"
@@ -52,7 +62,19 @@
       rel="stylesheet"
       href="./assets/app.css"
     />
-    <title>N2 Goi — Flashcard từ vựng</title>
+    <title>1.045 Từ vựng JLPT N2 qua Flashcard | N2 Goi</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "LearningResource",
+        "name": "N2 Goi — Flashcard từ vựng JLPT N2",
+        "description": "Ứng dụng học 1.045 từ vựng JLPT N2 qua 53 bộ flashcard, có lưu tiến độ và ôn từ chưa nhớ.",
+        "inLanguage": ["vi", "ja"],
+        "educationalLevel": "JLPT N2",
+        "learningResourceType": "Flashcard",
+        "isAccessibleForFree": true
+      }
+    </script>
     <script>
       (() => {
         try {
@@ -69,6 +91,51 @@
     </script>
   </head>
   <body class="min-h-full bg-paper text-ink antialiased">
+    <svg class="svg-sprite" aria-hidden="true">
+      <defs>
+        <g id="mimi-head-open">
+          <path class="mimi-head" d="M42 87c-7-14-7-31-1-44 3-8 3-23 9-28 4-4 15 8 21 12 13-5 28-5 41 0 7-5 18-16 22-11 5 6 4 19 7 27 6 15 5 34-4 48-11 17-31 25-50 24-20 0-37-10-45-28Z" />
+          <path class="mimi-patch" d="M102 25c11 2 21 8 28 17-4 8-12 13-21 12-9-2-15-11-12-19 1-4 3-7 5-10Z" />
+          <path class="mimi-ear-line" d="M48 43c2-8 3-16 5-20m80 20c-1-8-2-15-2-20" />
+          <ellipse class="mimi-eye-open" cx="67" cy="70" rx="5.5" ry="7" />
+          <ellipse class="mimi-eye-open" cx="114" cy="70" rx="5.5" ry="7" />
+          <circle class="mimi-eye-shine" cx="69" cy="67.5" r="1.6" />
+          <circle class="mimi-eye-shine" cx="116" cy="67.5" r="1.6" />
+          <path class="mimi-nose" d="M86 79c3-2 8-2 11 0-1 4-4 6-6 6-3 0-5-2-5-6Z" />
+          <path class="mimi-mouth" d="M91 85c0 7-7 9-11 5m11-5c0 7 7 9 11 5" />
+          <path class="mimi-whiskers" d="M71 85c-10-3-18-3-26 0m28 7c-12 1-19 4-25 9m63-16c10-3 18-3 26 0m-28 7c12 1 19 4 25 9" />
+        </g>
+      </defs>
+      <symbol id="mimi-sit" viewBox="0 0 190 178">
+        <path class="mimi-tail" d="M132 125c36-8 42 28 18 39-14 7-26-1-24-12" />
+        <path class="mimi-body" d="M48 105c9-13 25-19 43-18 26 1 43 16 45 42 2 19-7 31-23 34-15 3-46 2-59-3-17-7-20-35-6-55Z" />
+        <path class="mimi-limb" d="M123 123c17-3 26-15 27-32" />
+        <path class="mimi-paw-pad" d="M145 82c-1-7 2-13 7-14 6-1 10 5 9 12-1 8-5 13-10 13-4 0-6-5-6-11Z" />
+        <use href="#mimi-head-open" />
+        <path class="mimi-bib" d="M62 105c13 9 43 10 59-1-3 15-14 24-29 24-16 0-27-8-30-23Z" />
+        <path class="mimi-paw" d="M58 145c6-5 15-3 17 4m31 0c2-7 11-9 17-4" />
+      </symbol>
+      <symbol id="mimi-peek" viewBox="0 0 180 135">
+        <use href="#mimi-head-open" />
+        <path class="mimi-peek-paw" d="M43 111c5-10 20-11 27-2 4 6 1 14-6 17-9 4-26-4-21-15Zm70-2c7-9 22-8 27 2 5 11-12 19-21 15-7-3-10-11-6-17Z" />
+      </symbol>
+      <symbol id="mimi-study" viewBox="0 0 215 128">
+        <path class="mimi-tail" d="M164 92c34-24 52 3 36 20-9 10-22 6-25-2" />
+        <path class="mimi-body" d="M72 66c23-12 72-10 94 5 15 10 16 31 3 40-17 12-82 12-104 1-17-8-10-37 7-46Z" />
+        <path class="mimi-stretched-paw" d="M61 98c20 2 35 5 48 12m-42-23c19-2 34-1 48 4" />
+        <use href="#mimi-head-open" transform="matrix(.72 0 0 .72 -10 17)" />
+        <path class="mimi-bib" d="M34 92c10 7 31 7 43 0-2 10-10 17-21 17-12 0-20-6-22-17Z" />
+      </symbol>
+      <symbol id="mimi-celebrate" viewBox="0 0 180 180">
+        <path class="mimi-tail" d="M135 131c32-12 43 17 23 31-12 8-25 1-25-10" />
+        <path class="mimi-body" d="M55 105c10-12 24-18 38-17 24 1 38 17 38 42 0 23-12 35-38 35-25 0-39-12-39-35 0-9 0-17 1-25Z" />
+        <path class="mimi-limb" d="M63 119c-13-3-22-13-25-25m82 25c13-3 22-13 25-25" />
+        <path class="mimi-paw-pad" d="M29 86c-3-7 0-13 6-14 6-1 11 5 10 12-1 7-5 12-10 12-3 0-5-4-6-10Zm106-2c-1-7 4-13 10-12 6 1 9 7 6 14-1 6-3 10-6 10-5 0-9-5-10-12Z" />
+        <use href="#mimi-head-open" transform="matrix(.92 0 0 .92 7 1)" />
+        <path class="mimi-bib" d="M65 102c12 8 38 8 52-1-3 13-12 21-26 21-13 0-23-7-26-20Z" />
+        <path class="mimi-paw" d="M63 150c6-5 13-3 16 3m25 0c3-6 10-8 16-3" />
+      </symbol>
+    </svg>
     <div
       id="app"
       class="app-shell"
@@ -83,11 +150,7 @@
             href="#"
             aria-label="N2 Goi — Trang chủ"
           >
-            <span
-              class="brand-seal"
-              aria-hidden="true"
-              >語</span
-            >
+            <span class="brand-seal" aria-hidden="true">語</span>
             <span>
               <strong>N2 Goi</strong>
               <small>日本語・語彙</small>
@@ -146,12 +209,12 @@
           aria-labelledby="home-title"
         >
           <div class="hero-copy">
-            <p class="eyebrow"><span></span> JLPT N2 · 1.045 từ</p>
+            <p class="eyebrow"><span></span> Flashcard từ vựng JLPT N2</p>
             <h1 id="home-title">
-              Mỗi ngày một chút,<br /><em>言葉</em> sẽ ở lại.
+              1.045 từ N2.<br /><em>Học gọn</em> từng bài.
             </h1>
             <p class="hero-note">
-              Chọn một bài ngắn. Nhớ bằng nhịp của riêng bạn.
+              20 từ mỗi bài. Tiến độ lưu ngay trên máy.
             </p>
           </div>
           <div
@@ -161,9 +224,8 @@
             role="img"
             aria-label="Tiến độ tổng 0 phần trăm"
           >
+            <svg class="mimi hero-mimi" aria-hidden="true"><use href="#mimi-sit"></use></svg>
             <div>
-              <i class="ring-cat-nose" aria-hidden="true"></i>
-              <i class="ring-cat-whiskers" aria-hidden="true"></i>
               <strong id="overall-percent">0%</strong>
               <span>đã nhớ</span>
             </div>
@@ -176,7 +238,7 @@
           hidden
         >
           <div>
-            <span class="section-kicker">Tiếp tục</span>
+            <span class="section-kicker">Học tiếp</span>
             <h2 id="continue-title">Bài 01</h2>
             <p id="continue-detail">0/20 từ đã nhớ</p>
           </div>
@@ -193,14 +255,7 @@
               <path d="m9 5 7 7-7 7" />
             </svg>
           </button>
-          <span class="peek-cat" aria-hidden="true">
-            <span class="peek-cat-head">
-              <i class="peek-eye"></i>
-              <i class="peek-eye"></i>
-              <i class="peek-nose"></i>
-            </span>
-            <span class="peek-paw"></span>
-          </span>
+          <svg class="mimi peek-cat" aria-hidden="true"><use href="#mimi-peek"></use></svg>
         </section>
 
         <section
@@ -209,8 +264,8 @@
         >
           <div class="section-heading">
             <div>
-              <span class="section-kicker">Lộ trình</span>
-              <h2 id="deck-heading">53 bài từ vựng</h2>
+              <span class="section-kicker">53 bài · 20 từ mỗi bài</span>
+              <h2 id="deck-heading">Chọn bài để học</h2>
             </div>
             <p id="overall-count">0 / 1.045</p>
           </div>
@@ -341,21 +396,7 @@
                 >人生</strong
                 >
                 <span class="card-paw" aria-hidden="true"></span>
-                <span class="study-cat" aria-hidden="true">
-                  <i class="study-cat-eye"></i>
-                  <i class="study-cat-eye"></i>
-                  <i class="study-cat-nose"></i>
-                  <i class="study-cat-tail"></i>
-                </span>
-                <span class="flip-hint"
-                  ><svg
-                    aria-hidden="true"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M4 12a8 8 0 1 1 2.3 5.7M4 17v-5h5" />
-                  </svg>
-                  Chạm để lật</span
-                >
+                <svg class="mimi study-cat" aria-hidden="true"><use href="#mimi-study"></use></svg>
               </span>
               <span class="card-face card-back">
                 <span class="face-label">Cách đọc &amp; ý nghĩa</span>
@@ -407,7 +448,6 @@
               </svg>
               Hoàn tác
             </button>
-            <p id="answer-hint">Trả lời ngay hoặc lật để kiểm tra</p>
             <button
               id="shuffle-button"
               class="utility-button"
@@ -433,13 +473,7 @@
               disabled
             >
               <span class="answer-icon">×</span>
-              <span
-                ><strong>Chưa nhớ</strong
-                ><small
-                  ><span class="touch-hint">Vuốt trái</span
-                  ><kbd class="keyboard-hint">←</kbd></small
-                ></span
-              >
+              <strong>Chưa nhớ</strong>
             </button>
             <button
               id="known-button"
@@ -447,13 +481,7 @@
               type="button"
               disabled
             >
-              <span
-                ><strong>Đã nhớ</strong
-                ><small
-                  ><span class="touch-hint">Vuốt phải</span
-                  ><kbd class="keyboard-hint">→</kbd></small
-                ></span
-              >
+              <strong>Đã nhớ</strong>
               <span class="answer-icon">✓</span>
             </button>
           </div>
@@ -469,17 +497,12 @@
           class="summary-mark"
           aria-hidden="true"
         >
-          <span class="summary-cat">
-            <i class="summary-eye summary-eye-left"></i>
-            <i class="summary-eye summary-eye-right"></i>
-            <i class="summary-nose"></i>
-            <i class="summary-tail"></i>
-          </span>
+          <svg class="mimi summary-cat"><use href="#mimi-celebrate"></use></svg>
         </div>
-        <p class="eyebrow centered"><span></span> Hoàn thành <span></span></p>
+        <p class="eyebrow centered"><span></span> Kết quả <span></span></p>
         <h1 id="summary-title">Bài 01 đã xong</h1>
         <p id="summary-message" class="summary-message">
-          Một vòng nhỏ đã khép lại.<br />Những từ này giờ đã quen hơn rồi.
+          Đã nhớ 20/20 từ. Có thể ôn lại khi cần.
         </p>
         <div class="summary-stats">
           <div>
@@ -495,7 +518,7 @@
             class="primary-button"
             type="button"
           >
-            Ôn lại toàn bộ
+            Ôn lại bài này
           </button>
           <button
             id="summary-home-button"

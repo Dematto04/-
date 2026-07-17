@@ -30,63 +30,67 @@ function chunk(type, data) {
 function makeIcon(size) {
   const stride = size * 4 + 1;
   const pixels = Buffer.alloc(stride * size);
-  const center = (size - 1) / 2;
-  const pointInTriangle = (px, py, [ax, ay], [bx, by], [cx, cy]) => {
-    const d1 = (px - bx) * (ay - by) - (ax - bx) * (py - by);
-    const d2 = (px - cx) * (by - cy) - (bx - cx) * (py - cy);
-    const d3 = (px - ax) * (cy - ay) - (cx - ax) * (py - ay);
-    const hasNegative = d1 < 0 || d2 < 0 || d3 < 0;
-    const hasPositive = d1 > 0 || d2 > 0 || d3 > 0;
-    return !(hasNegative && hasPositive);
+  const ellipse = (x, y, cx, cy, rx, ry) => ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1;
+  const rotatedEllipse = (x, y, cx, cy, rx, ry, angle) => {
+    const cosine = Math.cos(angle);
+    const sine = Math.sin(angle);
+    const dx = x - cx;
+    const dy = y - cy;
+    const localX = dx * cosine + dy * sine;
+    const localY = -dx * sine + dy * cosine;
+    return (localX / rx) ** 2 + (localY / ry) ** 2 <= 1;
   };
 
-  const leftEar = [
-    [size * 0.22, size * 0.43],
-    [size * 0.29, size * 0.18],
-    [size * 0.48, size * 0.38]
-  ];
-  const rightEar = leftEar.map(([x, y]) => [size - x, y]);
-  const leftInnerEar = [
-    [size * 0.285, size * 0.36],
-    [size * 0.31, size * 0.245],
-    [size * 0.405, size * 0.36]
-  ];
-  const rightInnerEar = leftInnerEar.map(([x, y]) => [size - x, y]);
+  const palette = {
+    paper: [249, 246, 238, 255],
+    ink: [55, 42, 54, 255],
+    cream: [247, 207, 153, 255],
+    peach: [236, 154, 99, 255],
+    vermilion: [205, 97, 69, 255],
+    blush: [255, 230, 207, 255]
+  };
+
+  function colorAt(x, y) {
+    const nx = x / size;
+    const ny = y / size;
+    const inHead = ellipse(nx, ny, 0.5, 0.51, 0.302, 0.268);
+    const inLeftEar = rotatedEllipse(nx, ny, 0.335, 0.325, 0.105, 0.175, -0.43);
+    const inRightEar = rotatedEllipse(nx, ny, 0.665, 0.325, 0.105, 0.175, 0.43);
+    const inCat = inHead || inLeftEar || inRightEar;
+    const inLeftInnerEar = rotatedEllipse(nx, ny, 0.337, 0.31, 0.047, 0.105, -0.43);
+    const inRightInnerEar = rotatedEllipse(nx, ny, 0.663, 0.31, 0.047, 0.105, 0.43);
+    const patch = rotatedEllipse(nx, ny, 0.615, 0.345, 0.105, 0.072, 0.48) && inCat;
+    const muzzle = ellipse(nx, ny, 0.455, 0.59, 0.087, 0.066) || ellipse(nx, ny, 0.545, 0.59, 0.087, 0.066);
+    const eyes = ellipse(nx, ny, 0.41, 0.505, 0.018, 0.028)
+      || ellipse(nx, ny, 0.59, 0.505, 0.018, 0.028);
+    const eyeShine = ellipse(nx, ny, 0.416, 0.496, 0.006, 0.008)
+      || ellipse(nx, ny, 0.596, 0.496, 0.006, 0.008);
+    const nose = ellipse(nx, ny, 0.5, 0.575, 0.024, 0.017);
+    const mouthLeft = nx > 0.455 && nx <= 0.5 && Math.abs(ny - (0.602 + (0.5 - nx) * 0.38)) < 0.005;
+    const mouthRight = nx >= 0.5 && nx < 0.545 && Math.abs(ny - (0.602 + (nx - 0.5) * 0.38)) < 0.005;
+    const bib = ellipse(nx, ny, 0.5, 0.72, 0.145, 0.075) && ny > 0.685;
+
+    if (eyeShine) return palette.paper;
+    if (eyes || mouthLeft || mouthRight) return palette.ink;
+    if (nose || bib) return palette.vermilion;
+    if (muzzle) return palette.blush;
+    if (inLeftInnerEar || inRightInnerEar || patch) return palette.peach;
+    if (inCat) return palette.cream;
+    return palette.paper;
+  }
 
   for (let y = 0; y < size; y += 1) {
     pixels[y * stride] = 0;
     for (let x = 0; x < size; x += 1) {
       const offset = y * stride + 1 + x * 4;
-      const nx = (x - center) / (size * 0.355);
-      const ny = (y - size * 0.545) / (size * 0.305);
-      const inHead = nx * nx + ny * ny < 1;
-      const inLeftEar = pointInTriangle(x, y, ...leftEar);
-      const inRightEar = pointInTriangle(x, y, ...rightEar);
-      const inInnerEar = pointInTriangle(x, y, ...leftInnerEar)
-        || pointInTriangle(x, y, ...rightInnerEar);
-      const eyeY = size * 0.51;
-      const leftEye = Math.hypot((x - size * 0.41) / 0.65, y - eyeY) < size * 0.024;
-      const rightEye = Math.hypot((x - size * 0.59) / 0.65, y - eyeY) < size * 0.024;
-      const nose = Math.hypot(x - center, (y - size * 0.61) * 1.35) < size * 0.028;
-      const muzzleLeft = Math.hypot(x - size * 0.46, y - size * 0.655) < size * 0.068;
-      const muzzleRight = Math.hypot(x - size * 0.54, y - size * 0.655) < size * 0.068;
-      const star = ((x * 17 + y * 29) % 997 === 0) && Math.hypot(x - center, y - center) > size * 0.34;
-
-      const color = leftEye || rightEye
-        ? [35, 29, 51, 255]
-        : nose
-          ? [237, 139, 177, 255]
-          : muzzleLeft || muzzleRight
-            ? [255, 237, 207, 255]
-            : inInnerEar
-              ? [237, 139, 177, 255]
-              : inHead || inLeftEar || inRightEar
-                ? [201, 176, 255, 255]
-                : star
-                  ? [255, 237, 207, 155]
-                  : [15, 17, 31, 255];
-
-      pixels.set(color, offset);
+      const sum = [0, 0, 0, 0];
+      for (let sampleY = 0; sampleY < 3; sampleY += 1) {
+        for (let sampleX = 0; sampleX < 3; sampleX += 1) {
+          const color = colorAt(x + (sampleX + 0.5) / 3, y + (sampleY + 0.5) / 3);
+          for (let channel = 0; channel < 4; channel += 1) sum[channel] += color[channel];
+        }
+      }
+      pixels.set(sum.map((value) => Math.round(value / 9)), offset);
     }
   }
 

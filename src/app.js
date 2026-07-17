@@ -3,6 +3,12 @@ import { answerCard, createSession, shuffleRemaining, undoAnswer } from './study
 
 const STORAGE_KEY = 'n2-flashcards:state:v1';
 const DECK_COUNT = Math.ceil(CARDS.length / DECK_SIZE);
+const DECKS = Array.from({ length: DECK_COUNT }, (_, deckId) => (
+  CARDS.slice(deckId * DECK_SIZE, (deckId + 1) * DECK_SIZE)
+));
+const DECK_ID_SETS = DECKS.map((deck) => new Set(deck.map((card) => card.i)));
+const EMPTY_ID_SET = new Set();
+const NUMBER_FORMATTER = new Intl.NumberFormat('vi-VN');
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 
@@ -36,7 +42,6 @@ const elements = {
   knownButton: $('#known-button'),
   undoButton: $('#undo-button'),
   shuffleButton: $('#shuffle-button'),
-  answerHint: $('#answer-hint'),
   answerAnnouncer: $('#answer-announcer'),
   feedbackLeft: $('#swipe-feedback-left'),
   feedbackRight: $('#swipe-feedback-right'),
@@ -90,11 +95,11 @@ let toastTimer = null;
 let answerAnimationTimer = null;
 
 function deckCards(deckId) {
-  return CARDS.slice(deckId * DECK_SIZE, (deckId + 1) * DECK_SIZE);
+  return DECKS[deckId] || [];
 }
 
 function normalizedDeckState(deckId) {
-  const validIds = new Set(deckCards(deckId).map((card) => card.i));
+  const validIds = DECK_ID_SETS[deckId] || EMPTY_ID_SET;
   const source = state.decks[deckId] || {};
   const known = Array.isArray(source.known)
     ? [...new Set(source.known.filter((id) => validIds.has(id)))]
@@ -137,7 +142,7 @@ function showToast(message) {
 }
 
 function formatNumber(value) {
-  return new Intl.NumberFormat('vi-VN').format(value);
+  return NUMBER_FORMATTER.format(value);
 }
 
 function deckLabel(deckId) {
@@ -169,12 +174,12 @@ function renderHome() {
 
     cards.push(`
       <article class="deck-item${active ? ' is-active' : ''}${complete ? ' is-complete' : ''}">
-        <button class="deck-number" type="button" data-start-deck="${deckId}" aria-label="${deckLabel(deckId)}, ${knownCount} trên ${items.length} từ đã nhớ">
+        <span class="deck-number" aria-hidden="true">
           ${complete ? '<span class="paw-icon" aria-hidden="true"></span>' : String(deckId + 1).padStart(2, '0')}
-        </button>
-        <button class="deck-main" type="button" data-start-deck="${deckId}">
+        </span>
+        <button class="deck-main" type="button" data-start-deck="${deckId}" aria-label="${deckLabel(deckId)}, ${knownCount} trên ${items.length} từ đã nhớ">
           <strong>${deckLabel(deckId)}</strong>
-          <span>${complete ? 'Hoàn thành · Chạm để ôn lại' : `${knownCount}/${items.length} từ đã nhớ`}</span>
+          <span>${knownCount}/${items.length} từ đã nhớ</span>
           <span class="deck-progress" aria-hidden="true"><i style="width:${percent}%"></i></span>
         </button>
         ${knownCount > 0 ? `
@@ -198,7 +203,7 @@ function renderHome() {
     elements.continuePanel.hidden = false;
     elements.continueTitle.textContent = deckLabel(state.lastDeckId);
     elements.continueDetail.textContent = lastDeck.known.length === count
-      ? `${count} từ đã nhớ · Ôn lại toàn bộ`
+      ? `${count}/${count} từ đã nhớ`
       : `${lastDeck.known.length}/${count} từ đã nhớ`;
   } else {
     elements.continuePanel.hidden = true;
@@ -216,7 +221,7 @@ function renderCard() {
   elements.flashcard.style.removeProperty('--drag-x');
   elements.flashcard.style.removeProperty('--drag-rotate');
   elements.flashcard.setAttribute('aria-pressed', 'false');
-  elements.flashcard.setAttribute('aria-label', `Từ ${card.f}. Chạm để lật thẻ`);
+  elements.flashcard.setAttribute('aria-label', `Từ ${card.f}. Mở đáp án`);
   elements.cardIndex.textContent = String(card.i).padStart(3, '0');
   elements.cardFront.textContent = card.f;
   elements.cardReading.textContent = card.r;
@@ -227,7 +232,6 @@ function renderCard() {
   elements.againButton.disabled = false;
   elements.knownButton.disabled = false;
   elements.undoButton.disabled = session.history.length === 0;
-  elements.answerHint.textContent = 'Trả lời ngay hoặc lật để kiểm tra';
   elements.shuffleButton.classList.toggle('is-active', session.shuffled);
   elements.shuffleButton.setAttribute('aria-pressed', String(session.shuffled));
   renderStudyProgress();
@@ -239,6 +243,7 @@ function renderStudyProgress() {
   elements.studyDeckLabel.textContent = deckLabel(currentDeckId);
   elements.studyCountLabel.textContent = `${completed} / ${session.total} đã học`;
   elements.studyProgressBar.style.width = `${percent}%`;
+  elements.studyProgressBar.classList.toggle('is-empty', completed === 0);
 }
 
 function flipCard() {
@@ -246,8 +251,7 @@ function flipCard() {
   flipped = !flipped;
   elements.flashcard.classList.toggle('is-flipped', flipped);
   elements.flashcard.setAttribute('aria-pressed', String(flipped));
-  elements.flashcard.setAttribute('aria-label', flipped ? 'Đã hiện đáp án' : `Từ ${session.queue[0].f}. Chạm để lật thẻ`);
-  elements.answerHint.textContent = flipped ? 'Vuốt hoặc chọn mức độ nhớ' : 'Trả lời ngay hoặc lật để kiểm tra';
+  elements.flashcard.setAttribute('aria-label', flipped ? 'Đáp án đang hiển thị' : `Từ ${session.queue[0].f}. Mở đáp án`);
 }
 
 function startDeck(deckId, { reviewAll = false } = {}) {
@@ -341,12 +345,12 @@ function finishSession() {
 
   if (remainingCount > 0) {
     elements.summaryTitle.textContent = `${deckLabel(currentDeckId)} · Hết lượt`;
-    elements.summaryMessage.textContent = `Bạn đã đi qua toàn bộ ${session.total} từ của lượt này. Hãy học tiếp những từ chưa nhớ khi sẵn sàng.`;
+    elements.summaryMessage.textContent = `Đã học ${session.total} từ trong lượt này. Còn ${remainingCount} từ cần ôn lại.`;
     elements.reviewButton.textContent = `Học tiếp ${remainingCount} từ chưa nhớ`;
   } else {
     elements.summaryTitle.textContent = `${deckLabel(currentDeckId)} đã hoàn thành`;
-    elements.summaryMessage.textContent = 'Bạn đã nhớ toàn bộ từ trong bài này. Một vòng học trọn vẹn đã khép lại.';
-    elements.reviewButton.textContent = 'Ôn lại toàn bộ';
+    elements.summaryMessage.textContent = `Đã nhớ ${knownCount}/${currentDeckCards.length} từ. Có thể ôn lại khi cần.`;
+    elements.reviewButton.textContent = 'Ôn lại bài này';
   }
   setScreen('summary');
 }
@@ -366,7 +370,7 @@ function applyTheme(theme, persist = true) {
   const isDark = theme === 'dark';
   document.documentElement.classList.toggle('dark', isDark);
   document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
-  $$('meta[name="theme-color"]').forEach((meta) => { meta.content = isDark ? '#0f111f' : '#f7f3ed'; });
+  $$('meta[name="theme-color"]').forEach((meta) => { meta.content = isDark ? '#1b171f' : '#f9f6ee'; });
   $$('.theme-toggle').forEach((button) => {
     button.setAttribute('aria-label', isDark ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối');
   });
