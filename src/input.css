@@ -193,7 +193,7 @@
   .flashcard.is-answering-again { --drag-x: -105%; --drag-rotate: -7deg; opacity: 0; }
   .flashcard-inner { @apply relative block h-full w-full rounded-[2.5rem] [transform-style:preserve-3d]; -webkit-transform-style: preserve-3d; transition: transform 440ms cubic-bezier(.16,.78,.22,1); }
   .flashcard.is-flipped .flashcard-inner { transform: rotateY(180deg); }
-  .card-face { @apply absolute inset-0 flex h-full w-full flex-col rounded-[2.5rem] border border-line/75 p-6 [backface-visibility:hidden] [clip-path:inset(0_round_2.5rem)] sm:p-9; -webkit-backface-visibility: hidden; background-color: rgb(var(--surface-strong)); background-image: radial-gradient(circle at 8% 7%, rgb(var(--peach) / .13), transparent 15rem), radial-gradient(circle at 96% 100%, rgb(var(--success) / .08), transparent 17rem); box-shadow: inset 0 1px 0 rgb(255 255 255 / .25); }
+  .card-face { @apply absolute inset-0 flex h-full w-full flex-col rounded-[2.5rem] border border-line/75 p-6 [backface-visibility:hidden] [clip-path:inset(0_round_2.5rem)] sm:p-9; -webkit-backface-visibility: hidden; transition: visibility 0s linear 220ms; background-color: rgb(var(--surface-strong)); background-image: radial-gradient(circle at 8% 7%, rgb(var(--peach) / .13), transparent 15rem), radial-gradient(circle at 96% 100%, rgb(var(--success) / .08), transparent 17rem); box-shadow: inset 0 1px 0 rgb(255 255 255 / .25); }
   .card-front { @apply items-center justify-center text-center; }
   .card-front::after { content: ''; @apply absolute left-1/2 top-12 h-px w-24 -translate-x-1/2 bg-line/65; }
   .card-index { @apply absolute left-7 top-5 rounded-full bg-[rgb(var(--surface-soft)/.75)] px-2.5 py-1 font-display text-[9px] font-extrabold tracking-[.13em] text-muted; }
@@ -206,7 +206,9 @@
   .card-paw { @apply absolute bottom-8 left-9 text-vermilion opacity-30; transform: rotate(-16deg) scale(.72); }
   .study-cat { @apply absolute -bottom-4 right-1 h-[90px] w-[152px] opacity-80; }
 
-  .card-back { @apply items-center justify-center text-center; transform: rotateY(180deg); }
+  .card-back { @apply items-center justify-center text-center; transform: rotateY(180deg); visibility: hidden; }
+  .flashcard.is-flipped .card-front { visibility: hidden; }
+  .flashcard.is-flipped .card-back { visibility: visible; }
   .card-back .face-label { @apply left-7 right-auto; }
   .back-cat-mark { @apply absolute right-8 top-7 text-pink opacity-35; transform: rotate(12deg) scale(.75); }
   .card-back .answer-block { @apply w-full max-w-xl; }
