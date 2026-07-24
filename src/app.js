@@ -1,5 +1,9 @@
+import { inject } from '@vercel/analytics';
 import { CARDS, DECK_SIZE } from './data.generated.js';
 import { answerCard, createSession, shuffleRemaining, undoAnswer } from './study-engine.js';
+
+// Initialize Vercel Web Analytics
+inject();
 
 const STORAGE_KEY = 'n2-flashcards:state:v1';
 const DECK_COUNT = Math.ceil(CARDS.length / DECK_SIZE);
